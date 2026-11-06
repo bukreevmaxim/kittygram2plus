@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
+from cats.pagination import CatsPagination
 from cats.throttling import WorkingHoursRateThrottle
 from .models import Achievement, Cat, User
 from .permissions import OwnerOrReadOnly, ReadOnly
@@ -11,12 +13,14 @@ class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
     permission_classes = [OwnerOrReadOnly]
+    # Отключение пагинации на уровне класса
+    pagination_class = CatsPagination
     # throttle_classes = (AnonRateThrottle,)
     # Если кастомный тротлинг-класс вернёт True - запросы будут обработаны
     # Если он вернёт False - все запросы будут отклонены
     throttle_classes = (WorkingHoursRateThrottle, ScopedRateThrottle)
     # А далее применится лимит low_request
-    throttle_scope = 'low_request'
+    # throttle_scope = 'low_request'
 
     def get_permissions(self):
         # Если в GET-запросе требуется получить информацию об объекте

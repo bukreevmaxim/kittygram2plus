@@ -136,9 +136,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.UserRateThrottle',
-        # Не будем подключать класс AnonRateThrottle глобально.
-        # Подключим его только в тех view-классах или вьюсетах,
-        # где надо установить лимиты для анонимов
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
@@ -147,7 +144,9 @@ REST_FRAMEWORK = {
         # Имена (ключи) для scope придумывает разработчик, 
         # в меру собственной фантазии
         'low_request': '1/minute',
-    }
+    },
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 3,
 }
 
 SIMPLE_JWT = {
