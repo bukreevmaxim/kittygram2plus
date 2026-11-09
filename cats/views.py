@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 from cats.pagination import CatsPagination
 from cats.throttling import WorkingHoursRateThrottle
@@ -15,21 +15,12 @@ class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
     permission_classes = (OwnerOrReadOnly,)
-    # Добавим в кортеж ещё один бэкенд
-    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     pagination_class = None
     filterset_fields = ('color', 'birth_year')
-    search_fields = ('^name', 'color', 'owner__username') 
-
-    # def get_queryset(self):
-    #     queryset = Cat.objects.all()
-    #     # Добыть параметр color из GET-запроса
-    #     color = self.request.query_params.get('color')
-    #     if color is not None:
-    #         #  через ORM отфильтровать объекты модели Cat
-    #         #  по значению параметра color, полученного в запросе
-    #         queryset = queryset.filter(color=color)
-    #     return queryset
+    search_fields = ('name',)
+    ordering_fields = ('name', 'birth_year')
+    ordering = ('birth_year',)
 
     def get_permissions(self):
         # Если в GET-запросе требуется получить информацию об объекте
