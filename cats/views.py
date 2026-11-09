@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.throttling import AnonRateThrottle, ScopedRateThrottle
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
 from cats.pagination import CatsPagination
 from cats.throttling import WorkingHoursRateThrottle
@@ -12,15 +13,25 @@ from .serializers import AchievementSerializer, CatSerializer, UserSerializer
 class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
-    permission_classes = [OwnerOrReadOnly]
-    # Отключение пагинации на уровне класса
-    pagination_class = CatsPagination
-    # throttle_classes = (AnonRateThrottle,)
-    # Если кастомный тротлинг-класс вернёт True - запросы будут обработаны
-    # Если он вернёт False - все запросы будут отклонены
-    throttle_classes = (WorkingHoursRateThrottle, ScopedRateThrottle)
-    # А далее применится лимит low_request
-    # throttle_scope = 'low_request'
+    permission_classes = (OwnerOrReadOnly,)
+    # Указываем фильтрующий бэкенд DjangoFilterBackend
+    # Из библиотеки django-filter
+    filter_backends = (DjangoFilterBackend,)
+    # Временно отключим пагинацию на уровне вьюсета, 
+    # так будет удобнее настраивать фильтрацию
+    pagination_class = None
+    # Фильтровать будем по полям color и birth_year модели Cat
+    filterset_fields = ('color', 'birth_year') 
+
+    # def get_queryset(self):
+    #     queryset = Cat.objects.all()
+    #     # Добыть параметр color из GET-запроса
+    #     color = self.request.query_params.get('color')
+    #     if color is not None:
+    #         #  через ORM отфильтровать объекты модели Cat
+    #         #  по значению параметра color, полученного в запросе
+    #         queryset = queryset.filter(color=color)
+    #     return queryset
 
     def get_permissions(self):
         # Если в GET-запросе требуется получить информацию об объекте
